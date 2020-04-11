@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -19,25 +21,28 @@ import android.widget.Toast;
 import com.ekamard.mynotesapp.db.DatabaseContract;
 import com.ekamard.mynotesapp.db.NoteHelper;
 import com.ekamard.mynotesapp.entity.Note;
+import com.ekamard.mynotesapp.helper.MappingHelper;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.CONTENT_URI;
 import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.DATE;
 import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.DESCRIPTION;
 import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.TITLE;
 
 public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private EditText edtTitle , edtDescription;
+    private EditText edtTitle, edtDescription;
     private Button btnSubmit;
 
     private boolean isEdit = false;
     private Note note;
     private int position;
     private NoteHelper myNoteHelper;
+    private Uri uriWithId;
 
     public static final String EXTRA_NOTE = "extra_note";
     public static final String EXTRA_POSITION = "extra_position";
@@ -61,7 +66,7 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
         myNoteHelper = NoteHelper.getInstance(getApplicationContext());
 
         note = getIntent().getParcelableExtra(EXTRA_NOTE);
-        if (note != null){
+        if (note != null) {
             position = getIntent().getIntExtra(EXTRA_POSITION, 0);
             isEdit = true;
         } else {
@@ -71,11 +76,24 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
         String actionBarTitle;
         String btnTitle;
 
-        if (isEdit){
+        if (isEdit) {
+            //Uri yang di peroleh di sini akan digunakan untuk get data dari provider
+            //content://com.ekamard.mynotesapp/note/id
+
+            uriWithId = Uri.parse(CONTENT_URI + "/" + note.getId());
+            if (uriWithId != null) {
+                Cursor cursor = getContentResolver().query(uriWithId, null, null, null, null);
+
+                if (cursor != null) {
+                    note = MappingHelper.mapCursorToObject(cursor);
+                    cursor.close();
+                }
+            }
+
             actionBarTitle = "Ubah";
             btnTitle = "Update";
 
-            if (note != null){
+            if (note != null) {
                 edtTitle.setText(note.getTitle());
                 edtDescription.setText(note.getDescription());
             }
@@ -83,7 +101,7 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
             actionBarTitle = "Tambah";
             btnTitle = "Simpan";
         }
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(actionBarTitle);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -95,49 +113,39 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_submit){
+        if (v.getId() == R.id.btn_submit) {
             String title = edtTitle.getText().toString().trim();
             String description = edtDescription.getText().toString().trim();
 
-            if (TextUtils.isEmpty(title)){
+            if (TextUtils.isEmpty(title)) {
                 edtTitle.setError("Field can not be blank");
                 return;
             }
-
-            note.setTitle(title);
-            note.setDescription(description);
-
-            Intent intent = new Intent();
-            intent.putExtra(EXTRA_NOTE, note);
-            intent.putExtra(EXTRA_POSITION, position);
 
             ContentValues values = new ContentValues();
             values.put(TITLE, title);
             values.put(DESCRIPTION, description);
 
-            if (isEdit){
-                long result = myNoteHelper.update(String.valueOf(note.getId()), values);
-                if (result > 0){
-                    setResult(RESULT_UPDATE , intent);
-                    finish();
-                } else {
-                    Toast.makeText(NoteAddUpdateActivity.this, "Gagal mengupdate data" , Toast.LENGTH_SHORT).show();
-                }
+            if (isEdit) {
+                //Use uriWithId untuk update
+                // content://com.ekamard.mynotesapp/note/id
+
+                getContentResolver().update(uriWithId, values , null, null);
+                Toast.makeText(NoteAddUpdateActivity.this, "1 item was succesfully edited" , Toast.LENGTH_SHORT).show();
+                finish();
+
             } else {
                 note.setDate(getCurrenDate());
                 values.put(DATE, getCurrenDate());
-                long result = myNoteHelper.insert(values);
 
-                if (result > 0 ){
-                    note.setId((int) result);
-                    setResult(RESULT_ADD, intent);
-                    finish();
-                } else {
-                    Toast.makeText(NoteAddUpdateActivity.this, "Gagal menambah data" , Toast.LENGTH_SHORT).show();
-                }
+                // Use content uri for inserting data
+                // Content://com.ekamard.mynotesapp/note/
+                getContentResolver().insert(CONTENT_URI, values);
+                Toast.makeText(NoteAddUpdateActivity.this, "1 item was succesfuly edited", Toast.LENGTH_SHORT).show();
+                finish();
             }
-        }
     }
+}
 
     private String getCurrenDate(){
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss" , Locale.getDefault());
@@ -196,15 +204,11 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
                         if (isDialogClose){
                             finish();
                         } else {
-                            long result = myNoteHelper.deleteById(String.valueOf(note.getId()));
-                            if (result > 0){
-                                Intent intent = new Intent();
-                                intent.putExtra(EXTRA_POSITION , position);
-                                setResult(RESULT_DELETE, intent);
-                                finish();
-                            } else {
-                                Toast.makeText(NoteAddUpdateActivity.this, "Gagal menghapus data" , Toast.LENGTH_SHORT).show();
-                            }
+                            // Gunakan uriWithId untuk delete
+                            // content://com.ekamard.mynotesapp/note/id
+                            getContentResolver().delete(uriWithId , null, null);
+                            Toast.makeText(NoteAddUpdateActivity.this, "1 Item was succesfull deleted" , Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                     }
                 })
