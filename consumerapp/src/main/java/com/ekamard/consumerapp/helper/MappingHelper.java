@@ -1,10 +1,9 @@
-package com.ekamard.mynotesapp.helper;
+package com.ekamard.consumerapp.helper;
 
 import android.database.Cursor;
-import android.text.PrecomputedText;
 
-import com.ekamard.mynotesapp.db.DatabaseContract;
-import com.ekamard.mynotesapp.entity.Note;
+import com.ekamard.consumerapp.db.DatabaseContract;
+import com.ekamard.consumerapp.entity.Note;
 
 import java.util.ArrayList;
 

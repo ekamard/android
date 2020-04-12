@@ -1,12 +1,7 @@
-package com.ekamard.mynotesapp;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+package com.ekamard.consumerapp;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,20 +13,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.ekamard.mynotesapp.db.DatabaseContract;
-import com.ekamard.mynotesapp.db.NoteHelper;
-import com.ekamard.mynotesapp.entity.Note;
-import com.ekamard.mynotesapp.helper.MappingHelper;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+
+import com.ekamard.consumerapp.entity.Note;
+import com.ekamard.consumerapp.helper.MappingHelper;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.CONTENT_URI;
-import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.DATE;
-import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.DESCRIPTION;
-import static com.ekamard.mynotesapp.db.DatabaseContract.NoteColumns.TITLE;
+import static com.ekamard.consumerapp.db.DatabaseContract.NoteColumns.CONTENT_URI;
+import static com.ekamard.consumerapp.db.DatabaseContract.NoteColumns.DATE;
+import static com.ekamard.consumerapp.db.DatabaseContract.NoteColumns.DESCRIPTION;
+import static com.ekamard.consumerapp.db.DatabaseContract.NoteColumns.TITLE;
 
 public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -41,7 +38,6 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
     private boolean isEdit = false;
     private Note note;
     private int position;
-    private NoteHelper myNoteHelper;
     private Uri uriWithId;
 
     public static final String EXTRA_NOTE = "extra_note";
@@ -62,8 +58,6 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
         edtTitle = findViewById(R.id.edt_title);
         edtDescription = findViewById(R.id.edt_description);
         btnSubmit = findViewById(R.id.btn_submit);
-
-        myNoteHelper = NoteHelper.getInstance(getApplicationContext());
 
         note = getIntent().getParcelableExtra(EXTRA_NOTE);
         if (note != null) {

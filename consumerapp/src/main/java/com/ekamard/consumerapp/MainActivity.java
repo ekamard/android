@@ -1,11 +1,4 @@
-package com.ekamard.mynotesapp;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+package com.ekamard.consumerapp;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,11 +11,14 @@ import android.os.HandlerThread;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.ekamard.mynotesapp.adapter.NoteAdapter;
-import com.ekamard.mynotesapp.db.DatabaseContract;
-import com.ekamard.mynotesapp.db.NoteHelper;
-import com.ekamard.mynotesapp.entity.Note;
-import com.ekamard.mynotesapp.helper.MappingHelper;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.ekamard.consumerapp.adapter.NoteAdapter;
+import com.ekamard.consumerapp.db.DatabaseContract;
+import com.ekamard.consumerapp.entity.Note;
+import com.ekamard.consumerapp.helper.MappingHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -35,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements LoadNotesCallback
     private RecyclerView rvNotes;
     private NoteAdapter adapter;
     private FloatingActionButton fabAdd;
-    private NoteHelper myNoteHelper;
     private static final String EXTRA_STATE = "EXTRA_STATE";
 
     @Override
@@ -44,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements LoadNotesCallback
         setContentView(R.layout.activity_main);
 
         if (getSupportActionBar() != null)
-            getSupportActionBar().setTitle("Notes");
+            getSupportActionBar().setTitle("Customer Notes");
 
         myProgressBar = findViewById(R.id.progressbar);
         rvNotes = findViewById(R.id.rv_notes);
