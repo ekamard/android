@@ -21,13 +21,24 @@ public class NoteProvider extends ContentProvider {
     private static final int NOTE_ID = 2;
     private NoteHelper noteHelper;
 
+    //berfungsi sebagai pembanding uri dengan nilai integer tertentu
     private static final UriMatcher myUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        //content://com.ekamard.mynotesapp/note
+        /**
+         * uri matcher untuk opsi pertama
+        content://com.ekamard.mynotesapp/note
+         mengambil all data pada database
+         **/
         myUriMatcher.addURI(AUTHORITY, TABLE_NAME , NOTE);
 
-        //content://com.ekamard.mynotesapp/note/id
+        /**
+         * uri matcher untuk opsi kedua
+        content://com.ekamard.mynotesapp/note/id
+
+         # berfungsi sebagai pengganti id nanti yang akan di input, fungsi nya mirip seperti ? dalam query atau %s dalam string
+         mengambil data pada database lebih spesifik
+         **/
         myUriMatcher.addURI(AUTHORITY,
                 TABLE_NAME + "/#",
                 NOTE_ID);
@@ -48,11 +59,24 @@ public class NoteProvider extends ContentProvider {
         // TODO: Implement this to handle query requests from clients.
 
         Cursor cursor;
+
+        /**
+         * identifikasi obyek uri yang akan di request
+         */
         switch (myUriMatcher.match(uri)){
+
+            //jika obyek uri cocok dengan nilai pada variable NOTE atau = 1 maka query yang akan di jalankan adalah select all data pada database
             case NOTE:
                 cursor = noteHelper.queryAll();
                 break;
+
+             //jika obyej uri cocok dengan nilai pada variable NOTE_ID atau - 2 , maka query yang akan di proses adalah select data per id pada database
             case NOTE_ID:
+                /**
+                 * getLastPathSegment() berfungsi untuk mengambil nilai pada path terakhir sebuah uri
+                 * contoh path uri  content://com.ekamard.mynotesapp/note/2
+                 * maka query akan mengambil nilai id 2 dari path terakhir uri di atas
+                 */
                 cursor = noteHelper.queryById(uri.getLastPathSegment());
                 break;
             default:
@@ -81,6 +105,8 @@ public class NoteProvider extends ContentProvider {
                 added = 0;
                 break;
         }
+
+        //untuk menotifikasi apabila ada perubahan data pada provider dan mengirim nya ke semua apps yang menggunkan content provider ini
         getContext().getContentResolver().notifyChange(CONTENT_URI, null);
         return Uri.parse(CONTENT_URI + "/" +added);
     }

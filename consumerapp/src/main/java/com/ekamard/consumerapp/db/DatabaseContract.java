@@ -1,4 +1,4 @@
-package com.ekamard.mynotesapp.db;
+package com.ekamard.consumerapp.db;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -21,7 +21,7 @@ public class DatabaseContract {
         public static final String TITLE = "title";
         public static final String DESCRIPTION = "description";
 
-        //create URI menjadi string : content://com.ekamard.mynotesapp/note
+        //untuk mengakses uri content provider apps string : content://com.ekamard.mynotesapp/note
         public static final Uri CONTENT_URI = new Uri.Builder().scheme(SCHEME)
                 .authority(AUTHORITY)
                 .appendPath(TABLE_NAME)
